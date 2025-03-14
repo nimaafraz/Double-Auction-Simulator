@@ -1,0 +1,110 @@
+\documentclass{article}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\geometry{margin=1in}
+\begin{document}
+
+\section{Comparison of Auction Algorithms}
+
+\subsection{Nima-McAfee Auction}
+\begin{algorithm}[htbp]
+\DontPrintSemicolon
+Sort sellers ascending: $v^S_{1}<v^S_{2}<\dots<v^S_{n}$
+
+\Sort buyers descending: $v^B_{1}>v^B_{2}>\dots>v^B_{m}$
+
+Find largest $L$ and $K$ satisfying:
+$v^B_{L}\ge v^S_{L}$, and $\sum_{i=1}^{L} q_{B_i}\le \sum_{i=1}^{K} q_{S_i}$
+
+\BlankLine
+$\gamma \leftarrow \frac{1}{2}(v^S_{L+1}+v^B_{K+1})$
+
+\uIf{$\gamma \in [v^S_{L}, v^B_{K}]$}{
+    $\Theta_{\text{Pr}}\leftarrow\min(\sum_{i=1}^{L} q_{B_i}, \sum_{i=1}^{K} q_{S_i})$
+
+    Set uniform trade price: $p = \gamma$
+}
+\Else{
+$\Theta_{Pr}\leftarrow\min(\sum_{i=1}^{L-1} q_{B_i}, \sum_{i=1}^{K-1} q_{S_i})$
+
+Set buyer price: $p_B = v^B_L$, and seller price: $p = v^S_{L}$
+}
+\caption{Nima-McAfee Auction}
+\label{alg:nima_mcafee}
+\end{algorithm}
+
+
+\subsection{SBBA Auction}
+\begin{algorithm}[htbp]
+\DontPrintSemicolon
+Sort buyers descending: $b_1 \geq b_2 \geq \dots \geq b_n$
+
+Sort sellers ascending: $s_1 \leq s_2 \leq \dots \leq s_n$
+
+\BlankLine
+Find largest $k$ s.t. $b_k \geq s_k$
+
+\uIf{$s_{k+1}\leq b_k$}{
+    Set price $p \leftarrow s_{k+1}$
+
+    Trade all $k$ matched pairs at price $p$
+}
+\Else{
+    Set price $p \leftarrow b_k$
+
+    Randomly exclude one seller among cheapest $k$ sellers
+
+    Trade remaining $k-1$ matched pairs at price $p$
+}
+\caption{SBBA Auction (Strongly Budget Balanced)}
+\label{alg:sbba}
+\end{algorithm}
+
+
+\subsection{MUDA Auction}
+\begin{algorithm}[htbp]
+\DontPrintSemicolon
+Randomly partition buyers into two groups: $B_1, B_2$
+
+Randomly partition sellers into two groups: $S_1, S_2$
+
+Compute prices:
+$p_1 \leftarrow$ market-clearing price for $(B_1,S_1)$
+
+$p_2 \leftarrow$ market-clearing price:
+$(B_2, S_2)$
+
+Cross-match at computed prices:
+\begin{itemize}
+\item Match buyers $B_1$ with sellers $S_2$ at price $p_2$
+\item Match buyers $B_2$ with sellers $S_1$ at price $p_1$
+\end{itemize}
+
+\label{alg:muda}
+\caption{MUDA Double Auction (Segal-Halevi et al. \cite{SegalHalevi2017MUDA})}
+\end{algorithm}
+
+\section{Comparative Market Design Analysis}
+
+\begin{itemize}
+    \item \textbf{Price Formation:}
+    \begin{itemize}
+        \item \textbf{Nima-McAfee:} Uses the midpoint between the marginal unsuccessful buyer and seller valuations; sometimes results in a surplus.
+        \item \textbf{SBBA:} Uses a single uniform price, strongly budget balanced; may randomly exclude one seller.
+        \item \textbf{MUDA:} Uses random market partitioning and computes two cross-market prices, ensuring truthful behavior.
+    \end{itemize}
+
+        \item \textbf{Budget Balance:}
+        \begin{itemize}
+        \item \textbf{Nima-McAfee:} Weakly budget-balanced; can leave surplus.
+        \item \textbf{SBBA:} Strongly budget-balanced; no surplus left.
+        \item \textbf{MUDA:} Budget-balanced in expectation due to random partitions.
+    \end{itemize}
+
+    \end{itemize}
+
+    \textbf{Truthfulness:} All algorithms ensure truthfulness.
+
+\end{document}
